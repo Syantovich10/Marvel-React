@@ -3,16 +3,18 @@ import './charList.scss';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import useMarvelService from "../../services/MarvelService";
+import type {character} from "../../types/types";
+type Props = {
+    onCharacterSelected: (id: string | number) => void;
+}
 
 
 
-
-
-const CharList = (props) => {
-    const [charList, setCharList] = useState([]);
-    const [newItemLoading, setNewItemLoading] = useState(false);
-    const [offset, setOffset] = useState(0);
-    const [charEnded, setCharEnded] = useState(false);
+const CharList = ({onCharacterSelected} : Props) => {
+    const [charList, setCharList] = useState<character[]>([]);
+    const [newItemLoading, setNewItemLoading] = useState<boolean>(false);
+    const [offset, setOffset] = useState<number>(0);
+    const [charEnded, setCharEnded] = useState<boolean>(false);
 
 
 
@@ -24,13 +26,13 @@ const CharList = (props) => {
 
 
 
-    const onRequest = (offset, initial) => {
+    const onRequest = (offset: number, initial?: boolean) => {
         initial ? setNewItemLoading(false) : setNewItemLoading(true);
         getAllCharacters(offset)
             .then(onCharListLoaded)
     }
 
-    const onCharListLoaded = (newCharList) => {
+    const onCharListLoaded = (newCharList: character[]) => {
         let ended = false;
         if(newCharList.length < 9) {
             ended = true;
@@ -45,13 +47,13 @@ const CharList = (props) => {
 
 
 
-    const Content = (charList)=> {
+    const Content = (charList: character[])=> {
 
 
         const items = charList.map((item) => {
             return (
                 <li className="char__item" key={item.id}
-                    onClick={() => props.onCharacterSelected(item.id)}>
+                    onClick={() => onCharacterSelected(item.id)}>
                     <img src={item.thumbnail} alt={item.name}/>
                     <div className="char__name">{item.name}</div>
                 </li>

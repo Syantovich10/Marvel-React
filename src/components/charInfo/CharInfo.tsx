@@ -1,32 +1,33 @@
-import './charInfo.scss';
-import {useEffect, useState} from "react";
+import './charInfo.scss'
+import {useEffect, useState}  from "react";
 import {NavLink} from 'react-router-dom';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import useMarvelService from "../../services/MarvelService";
 import Skeleton from '../skeleton/Skeleton';
+import * as React from 'react';
+import type {character, comic} from "../../types/types";
 
 
 
-const CharInfo = (props) => {
-    const [char, setChar] = useState(null);
+const CharInfo = ({charId} : {charId: number | string | null}) => {
+    const [char, setChar] = useState<character | null>(null);
     const {loading, error, getCharacter, getAllComics} = useMarvelService();
-    const [comicCache, setComicCache] = useState({});
+    const [comicCache, setComicCache] = useState<comic[] | []>([]);
     useEffect(() => {
         updateChar();
-
-    }, [props.charId]);
+    }, [charId]);
 
     useEffect(() => {
         const fetchComics = async () => {
                 const res = await getAllComics(0, 100);
                 setComicCache(res)
+                console.log(res)
         };
         fetchComics();
     },[])
 
     const updateChar = () => {
-        const {charId} = props;
         if(!charId){
             return;
         }
@@ -36,7 +37,7 @@ const CharInfo = (props) => {
 
 
 
-    const onCharListLoaded = (char) => {
+    const onCharListLoaded = (char: character) => {
         setChar(char);
     }
 
@@ -56,10 +57,16 @@ const CharInfo = (props) => {
         </div>
     )
 }
-const View = ({char, comicCache}) => {
+
+type ViewProps = {
+    char: character,
+    comicCache: comic[],
+}
+
+const View = ({char, comicCache} : ViewProps) => {
     const { name,description,thumbnail, homepage,wiki,comics} = char;
 
-    const matchComics = (comicName, result) => {
+    const matchComics = (comicName : string, result: comic[]) => {
         // Я вынес result для того чтобы для каждого мэтча не делать запрос это писал Глеб
         const found = result.find((comic,i) => comic.title === comicName);
         return found ? found.id : null;

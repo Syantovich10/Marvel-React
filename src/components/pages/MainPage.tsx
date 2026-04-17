@@ -8,10 +8,10 @@ import decoration from '../../resources/img/vision.png';
 
 
 const MainPage = () => {
-    const [selectedCharacter, setSelectedCharacter] = useState(null)
+    const [selectedCharacter, setSelectedCharacter] = useState<number | string | null>(null)
 
 
-    const onCharacterSelected = (id) => {
+    const onCharacterSelected = (id: number | string) => {
         setSelectedCharacter(id);
     }
     return (

@@ -5,11 +5,12 @@ import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import useMarvelService from "../../services/MarvelService";
 import './singleComicPage.scss';
+import type {comic} from "../../types/types";
 
 const SingleComicPage = () => {
-    const {comicId} = useParams();
+    const {comicId} = useParams<{comicId: string}>();
     const navigate = useNavigate();
-    const [comic, setComic] = useState(null);
+    const [comic, setComic] = useState<comic | null>(null);
     const {loading, error, getComic,clearError} = useMarvelService();
 
     useEffect(() => {
@@ -17,13 +18,15 @@ const SingleComicPage = () => {
     }, [comicId]);
 
     const updateComic = () => {
+
         clearError();
+        if (!comicId) return;
         getComic(comicId)
             .then(onComicLoaded)
             .catch(()=>{navigate('/404')});
 
     }
-    const onComicLoaded = (comic) => {
+    const onComicLoaded = (comic: comic) => {
         setComic(comic);
     }
 
@@ -40,7 +43,7 @@ const SingleComicPage = () => {
     )
 }
 
-const View = ({comic}) => {
+const View = ({comic}: {comic: comic}) => {
     const {title, description, thumbnail, pageCount, price, languages} = comic;
 
     return (
