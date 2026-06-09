@@ -5,48 +5,37 @@ import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import useMarvelService from "../../services/MarvelService";
 import Skeleton from '../skeleton/Skeleton';
-import * as React from 'react';
+
+import { useSelector } from "react-redux";
+import { useLazyGetCharacterQuery, useGetAllComicsQuery } from "../../api/heroesApi";
+
 import type {character, comic} from "../../types/types";
+import type {RootState, Store} from "../../store/store";
 
 
+const CharInfo = () => {
+    const selectedCharacter = useSelector((state: RootState) => state.ui.selectedCharacter)
+    const [trigger, {data: charItem, isLoading, isFetching, isError}] = useLazyGetCharacterQuery();
+    const {data: comics = []} = useGetAllComicsQuery(0);
 
-const CharInfo = ({charId} : {charId: number | string | null}) => {
-    const [char, setChar] = useState<character | null>(null);
-    const {loading, error, getCharacter, getAllComics} = useMarvelService();
-    const [comicCache, setComicCache] = useState<comic[] | []>([]);
     useEffect(() => {
         updateChar();
-    }, [charId]);
+    }, [selectedCharacter]);
 
-    useEffect(() => {
-        const fetchComics = async () => {
-                const res = await getAllComics(0, 100);
-                setComicCache(res)
-                console.log(res)
-        };
-        fetchComics();
-    },[])
 
     const updateChar = () => {
-        if(!charId){
+        if(!selectedCharacter){
             return;
         }
-            getCharacter(charId)
-            .then(onCharListLoaded)
+            trigger(selectedCharacter, true)
     }
 
-
-
-    const onCharListLoaded = (char: character) => {
-        setChar(char);
-    }
-
-    const skeleton = char || loading || error ? null : <Skeleton/>;
-    const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading ? <Spinner/> : null;
-    const content = !(loading || error || !char) ? <View char={char} comicCache={comicCache}/> : null;
-
-
+    const skeleton = !charItem && !isLoading && !isFetching && !isError ? <Skeleton/> : null;
+    const errorMessage = isError ? <ErrorMessage/> : null;
+    const spinner = (isLoading || isFetching) ? <Spinner/> : null;
+    const content = charItem && !isLoading && !isFetching && !isError
+        ? <View char={charItem} comicCache={comics}/>
+        : null;
 
     return (
         <div className="char__info">
@@ -94,19 +83,18 @@ const View = ({char, comicCache} : ViewProps) => {
             <div className="char__comics">Comics:</div>
             <ul className="char__comics-list">
                 {
-
                     comics.map((comic,i) => {
-                        const id = matchComics(comic,comicCache)
-                        return (
-                            <li key = {i} className="char__comics-item">
-                                {id ? (
-                                    <NavLink to={`/comics/${id}`}>{comic}</NavLink>
-                                ) : (
-                                    <span>{comic}</span>
-                                )}
-                            </li>
-                        )
-                    })
+                    const id = matchComics(comic,comicCache)
+                    return (
+                    <li key = {i} className="char__comics-item">
+                {id ? (
+                    <NavLink to={`/comics/${id}`}>{comic}</NavLink>
+                ) : (
+                    <span>{comic}</span>
+                )}
+            </li>
+            )
+            })
                 }
             </ul>
         </>

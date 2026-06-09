@@ -3,33 +3,31 @@ import './charList.scss';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import useMarvelService from "../../services/MarvelService";
+
+import {useDispatch} from "react-redux";
+import {changeSelectChar} from "../../ui/uiSlice"
+
 import type {character} from "../../types/types";
-type Props = {
-    onCharacterSelected: (id: string | number) => void;
-}
+import {useLazyGetAllCharactersQuery, useGetAllCharactersQuery} from "../../api/heroesApi";
 
 
 
-const CharList = ({onCharacterSelected} : Props) => {
+
+const CharList = () => {
     const [charList, setCharList] = useState<character[]>([]);
-    const [newItemLoading, setNewItemLoading] = useState<boolean>(false);
     const [offset, setOffset] = useState<number>(0);
     const [charEnded, setCharEnded] = useState<boolean>(false);
+    const dispatch = useDispatch();
 
-
-
-   const {loading, error, getAllCharacters} = useMarvelService();
+    const [trigger, {isLoading, isFetching, isError}] = useLazyGetAllCharactersQuery();
+    // const {data: chars, isLoading, isFetch} = useGetAllCharactersQuery(offset);
 
     useEffect(() => {
-        onRequest(offset, true);
+        onRequest(offset);
     }, [])
 
-
-
-    const onRequest = (offset: number, initial?: boolean) => {
-        initial ? setNewItemLoading(false) : setNewItemLoading(true);
-        getAllCharacters(offset)
-            .then(onCharListLoaded)
+    const onRequest = (offset: number) => {
+        trigger(offset).unwrap().then(data => onCharListLoaded(data));
     }
 
     const onCharListLoaded = (newCharList: character[]) => {
@@ -37,9 +35,7 @@ const CharList = ({onCharacterSelected} : Props) => {
         if(newCharList.length < 9) {
             ended = true;
         }
-
         setCharList(charList => [...charList, ...newCharList]);
-        setNewItemLoading(newItemLoading => false);
         setOffset(offset => offset + 9);
         setCharEnded(charEnded => ended);
     }
@@ -53,24 +49,23 @@ const CharList = ({onCharacterSelected} : Props) => {
         const items = charList.map((item) => {
             return (
                 <li className="char__item" key={item.id}
-                    onClick={() => onCharacterSelected(item.id)}>
+                    onClick={() => dispatch(changeSelectChar(item.id))}>
                     <img src={item.thumbnail} alt={item.name}/>
                     <div className="char__name">{item.name}</div>
                 </li>
             )
         })
         return (
-            <ul className="char__grid">
+            <>
                 {items}
-            </ul>
+            </>
         )
     }
 
 
     const items = Content(charList);
-
-    const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading && !newItemLoading ? <Spinner/> : null;
+    const errorMessage = isError ? <ErrorMessage/> : null;
+    const spinner = isLoading && !isFetching ? <Spinner/> : null;
 
 
 
@@ -84,9 +79,8 @@ const CharList = ({onCharacterSelected} : Props) => {
                     {items}
                 </ul>
                 <button
-
                     className="button button__main button__long"
-                    disabled={newItemLoading}
+                    disabled={isFetching}
                     style={{'display':charEnded ? 'none' : 'block'}}
                 onClick={()=>onRequest(offset)}>
                     <div className="inner">load more</div>

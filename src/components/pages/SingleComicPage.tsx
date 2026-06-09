@@ -1,38 +1,30 @@
 import {useParams,useNavigate, NavLink} from "react-router-dom";
 
-import {useEffect, useState} from "react";
+import { useEffect } from "react";
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import useMarvelService from "../../services/MarvelService";
 import './singleComicPage.scss';
-import type {comic} from "../../types/types";
+
+import { useGetComicQuery } from "../../api/heroesApi";
+
+import type { comic } from "../../types/types";
 
 const SingleComicPage = () => {
     const {comicId} = useParams<{comicId: string}>();
     const navigate = useNavigate();
-    const [comic, setComic] = useState<comic | null>(null);
-    const {loading, error, getComic,clearError} = useMarvelService();
+    const {data: comic, isLoading, isFetching, isError} = useGetComicQuery(comicId ?? '', {
+        skip: !comicId
+    });
 
     useEffect(() => {
-        updateComic();
-    }, [comicId]);
+        if(isError) {
+            navigate('/404')
+        }
+    }, [isError]);
 
-    const updateComic = () => {
-
-        clearError();
-        if (!comicId) return;
-        getComic(comicId)
-            .then(onComicLoaded)
-            .catch(()=>{navigate('/404')});
-
-    }
-    const onComicLoaded = (comic: comic) => {
-        setComic(comic);
-    }
-
-    const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading ? <Spinner/> : null;
-    const content = !(loading || error || !comic) ? <View comic={comic}/> : null;
+    const errorMessage = isError ? <ErrorMessage/> : null;
+    const spinner = isLoading || isFetching ? <Spinner/> : null;
+    const content = !(isLoading || isFetching || isError || !comic) ? <View comic={comic}/> : null;
 
     return (
         <>

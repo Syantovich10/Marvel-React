@@ -1,4 +1,3 @@
-import {useState} from "react";
 import RandomChar from "../randomChar/RandomChar";
 import CharList from "../charList/CharList";
 import CharInfo from "../charInfo/CharInfo";
@@ -8,12 +7,6 @@ import decoration from '../../resources/img/vision.png';
 
 
 const MainPage = () => {
-    const [selectedCharacter, setSelectedCharacter] = useState<number | string | null>(null)
-
-
-    const onCharacterSelected = (id: number | string) => {
-        setSelectedCharacter(id);
-    }
     return (
         <>
             <ErrorBoundary>
@@ -21,10 +14,10 @@ const MainPage = () => {
             </ErrorBoundary>
             <div className="char__content">
                 <ErrorBoundary>
-                    <CharList onCharacterSelected={onCharacterSelected}/>
+                    <CharList/>
                 </ErrorBoundary>
                 <ErrorBoundary>
-                    <CharInfo charId={selectedCharacter}/>
+                    <CharInfo/>
                 </ErrorBoundary>
             </div>
             <img className="bg-decoration" src={decoration} alt="vision"/>

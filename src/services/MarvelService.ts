@@ -1,4 +1,4 @@
-import {useHttp} from "../hooks/http.hook";
+import {useHttp} from "../../../../../../../booksRider/vite-project/src/hooks/http.hook";
 
 type useMarvelServiceTypes = {
     loading: boolean,
@@ -44,14 +44,15 @@ const useMarvelService = () : useMarvelServiceTypes  =>{
     }
 
     const _transformComics =  (comic: any) => {
+        const data = comic.data ? comic.data.results[0] : comic;
         return {
-            id: comic.id,
-            title: comic.title,
-            description: comic.description ? `${comic.description.slice(0, 210)}...` : 'There is no description for this character',
-            thumbnail: comic.thumbnail.path + '.' + comic.thumbnail.extension,
-            pageCount: comic.pageCount,
-            price: comic.prices[0].price,
-            languages: comic.textObjects.languages,
+            id: data.id,
+            title: data.title,
+            description: data.description ? `${data.description.slice(0, 210)}...` : 'There is no description for this character',
+            thumbnail: data.thumbnail.path + '.' + data.thumbnail.extension,
+            pageCount: data.pageCount,
+            price: data.prices[0].price,
+            languages: data.textObjects.languages,
         }
     }
 
@@ -62,12 +63,10 @@ const useMarvelService = () : useMarvelServiceTypes  =>{
 
     const getComic = async (id: number | string) => {
         const res = await request(`${_apiBase}comics/${id}?apikey=${_apiKey}`);
-        return _transformComics(res.data.results[0]);
+        return _transformComics(res);
     };
 
     return {loading, error, getAllCharacters, getCharacter, clearError, getAllComics, getComic,};
-
-
 }
 
 

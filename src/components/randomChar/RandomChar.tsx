@@ -5,40 +5,41 @@ import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 import useMarvelService from "../../services/MarvelService";
 import {useState, useEffect} from "react";
+import type {character} from "../../types/types";
+import {useLazyGetCharacterQuery} from "../../api/heroesApi";
 
 
 const RandomChar = () => {
-    const [char, setChar] = useState({});
-    const {loading, error, getCharacter, clearError} = useMarvelService();
+    // const {loading, error, getCharacter, clearError} = useMarvelService();
 
-
-
-
-    const onCharLoaded = (char) => {
-        setChar(char);
-    }
+    const [trigger, { data: charItem, isLoading, isFetching, isError}] = useLazyGetCharacterQuery();
 
     useEffect(() => {
-        updateChar();
+        getRandomChar();
     }, []);
 
-
-
-    const updateChar = () =>{
-        clearError();
+    const getRandomChar = () => {
         const max = 20
         const min = 1
         const id = Math.floor(Math.random() * (max - min + 1)) + min;
-        getCharacter(id)
-            .then(onCharLoaded)
+        trigger(id)
     }
 
 
 
+    // const updateChar = () =>{
+    //     clearError();
+    //
+    //     getCharacter(id)
+    //         .then(onCharLoaded)
+    // }
 
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error) ? <View char={char}/> : null;
+
+    const isSearching = isLoading || isFetching;
+
+        const errorMessage = isError ? <ErrorMessage/> : null;
+        const spinner = (isLoading || isFetching) ? <Spinner/> : null;
+    const content = !(isSearching || isError) && charItem ? <View charItem={charItem}/> : null;
 
         return (
             <div className="randomchar">
@@ -53,8 +54,8 @@ const RandomChar = () => {
                     <p className="randomchar__title">
                         Or choose another one
                     </p>
-                    <button className="button button__main"onClick={updateChar}>
-                        <div className="inner" >try it</div>
+                    <button className="button button__main" onClick={getRandomChar}>
+                        <div className="inner">try it</div>
                     </button>
                     <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
                 </div>
@@ -63,8 +64,8 @@ const RandomChar = () => {
 
 }
 
-const View = ({char})=> {
-    const {name,description,thumbnail,homepage,wiki} = char;
+const View = ({charItem} : {charItem: character})=> {
+    const {name,description,thumbnail,homepage,wiki} = charItem;
 
     return (
         <div className="randomchar__block">

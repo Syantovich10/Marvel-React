@@ -1,10 +1,13 @@
 import './comicsList.scss';
-import useMarvelService from "../../services/MarvelService";
 import {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";
+
+import { useLazyGetAllComicsQuery } from "../../api/heroesApi";
+
 import type {comic} from "../../types/types";
+
 
 const ComicsList = () => {
     const [comicsList, setComicsList] = useState<comic[]>([]);
@@ -12,19 +15,16 @@ const ComicsList = () => {
     const [offset, setOffset] = useState<number>(0);
     const [comicsEnded, setComicsEnded] = useState<boolean>(false);
 
-
-    const {loading, error, getAllComics} = useMarvelService();
+    const [trigger, {isLoading, isFetching, isError}] = useLazyGetAllComicsQuery();
 
 
     useEffect(() => {
-        onRequest(offset, true);
+        onRequest(offset);
     }, []);
 
 
-    const onRequest = (offset: number, initial?: boolean) => {
-        initial ? setNewComicsLoading(false) : setNewComicsLoading(true);
-        getAllComics(offset)
-            .then(onComicsListLoaded)
+    const onRequest = (offset: number) => {
+        trigger(offset).unwrap().then((data: comic[]) => onComicsListLoaded(data))
     }
 
     const onComicsListLoaded = (newComicsList: comic[]) => {
@@ -32,19 +32,12 @@ const ComicsList = () => {
         if(newComicsList.length < 9) {
             ended = true;
         }
-
         setComicsList(comicsList => [...comicsList, ...newComicsList]);
-        setNewComicsLoading(newComicsLoading => false);
         setOffset(offset => offset + 9);
         setComicsEnded(comicsEnded => ended);
     }
 
-
-
-
     function renderItems (comicsList: comic[]) {
-
-
         const items = comicsList.map(item => {
             return (
                 <li className="comics__item" key={item.id}>
@@ -55,29 +48,24 @@ const ComicsList = () => {
                     </Link>
                 </li>
             )
-        })
+        });
         return (
             <ul className="comics__grid">
                 {items}
             </ul>
-        )
+        );
     }
 
-
     const items = renderItems(comicsList);
-
-    const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading && !newComicsLoading ? <Spinner/> : null;
+    const errorMessage = isError ? <ErrorMessage/> : null;
+    const spinner = isLoading && !isFetching ? <Spinner/> : null;
 
     return (
         <div className="comics__list">
-
                 {errorMessage}
                 {spinner}
                 {items}
-
             <button
-
                 className="button button__main button__long"
                 disabled={newComicsLoading}
                 style={{'display': comicsEnded ? 'none' : 'block'}}
