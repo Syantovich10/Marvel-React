@@ -5,7 +5,7 @@ import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import './singleComicPage.scss';
 
-import { useGetComicQuery } from "../../api/heroesApi";
+import { useGetComicQuery } from "../../api/comicsApi";
 
 import type { comic } from "../../types/types";
 

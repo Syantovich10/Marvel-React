@@ -3,14 +3,14 @@ import {useEffect, useState}  from "react";
 import {NavLink} from 'react-router-dom';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import useMarvelService from "../../services/MarvelService";
 import Skeleton from '../skeleton/Skeleton';
 
 import { useSelector } from "react-redux";
-import { useLazyGetCharacterQuery, useGetAllComicsQuery } from "../../api/heroesApi";
+import { useLazyGetCharacterQuery } from "../../api/characterApi";
+import { useGetAllComicsQuery } from "../../api/comicsApi";
 
 import type {character, comic} from "../../types/types";
-import type {RootState, Store} from "../../store/store";
+import type {RootState} from "../../store/store";
 
 
 const CharInfo = () => {

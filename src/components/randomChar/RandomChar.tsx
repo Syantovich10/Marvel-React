@@ -1,17 +1,15 @@
-
+import './randomChar.scss';
+import {useEffect} from "react";
 import Spinner from "../spinner/Spinner";
 import ErrorMessage from "../errorMessage/ErrorMessage";
-import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
-import useMarvelService from "../../services/MarvelService";
-import {useState, useEffect} from "react";
+
+import {useLazyGetCharacterQuery} from "../../api/characterApi";
+
 import type {character} from "../../types/types";
-import {useLazyGetCharacterQuery} from "../../api/heroesApi";
 
 
 const RandomChar = () => {
-    // const {loading, error, getCharacter, clearError} = useMarvelService();
-
     const [trigger, { data: charItem, isLoading, isFetching, isError}] = useLazyGetCharacterQuery();
 
     useEffect(() => {
@@ -22,24 +20,13 @@ const RandomChar = () => {
         const max = 20
         const min = 1
         const id = Math.floor(Math.random() * (max - min + 1)) + min;
-        trigger(id)
-    }
+        trigger(id, true)
+    };
 
 
-
-    // const updateChar = () =>{
-    //     clearError();
-    //
-    //     getCharacter(id)
-    //         .then(onCharLoaded)
-    // }
-
-
-    const isSearching = isLoading || isFetching;
-
-        const errorMessage = isError ? <ErrorMessage/> : null;
-        const spinner = (isLoading || isFetching) ? <Spinner/> : null;
-    const content = !(isSearching || isError) && charItem ? <View charItem={charItem}/> : null;
+    const errorMessage = isError ? <ErrorMessage/> : null;
+    const spinner = (isLoading || isFetching) ? <Spinner/> : null;
+    const content = !(isLoading || isFetching || isError) && charItem ? <View charItem={charItem}/> : null;
 
         return (
             <div className="randomchar">

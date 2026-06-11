@@ -4,38 +4,30 @@ import {Link} from "react-router-dom";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";
 
-import { useLazyGetAllComicsQuery } from "../../api/heroesApi";
+import { changeComicsOffset } from "../../ui/uiSlice";
+import { useGetAllComicsQuery } from "../../api/comicsApi";
+import { useSelector, useDispatch } from "react-redux";
 
 import type {comic} from "../../types/types";
+import type {RootState} from "../../store/store";
 
 
 const ComicsList = () => {
-    const [comicsList, setComicsList] = useState<comic[]>([]);
-    const [newComicsLoading, setNewComicsLoading] = useState<boolean>(false);
-    const [offset, setOffset] = useState<number>(0);
+    const comicsOffset = useSelector((state : RootState) => state.ui.comicsOffset)
     const [comicsEnded, setComicsEnded] = useState<boolean>(false);
+    const dispatch = useDispatch();
 
-    const [trigger, {isLoading, isFetching, isError}] = useLazyGetAllComicsQuery();
-
+    const {data:comicsList=[],isFetching, isError} = useGetAllComicsQuery(comicsOffset);
 
     useEffect(() => {
-        onRequest(offset);
-    }, []);
-
-
-    const onRequest = (offset: number) => {
-        trigger(offset).unwrap().then((data: comic[]) => onComicsListLoaded(data))
-    }
-
-    const onComicsListLoaded = (newComicsList: comic[]) => {
-        let ended = false;
-        if(newComicsList.length < 9) {
-            ended = true;
+        if (comicsList.length > 0 && comicsList.length % 9 !== 0) {
+            setComicsEnded(true);
         }
-        setComicsList(comicsList => [...comicsList, ...newComicsList]);
-        setOffset(offset => offset + 9);
-        setComicsEnded(comicsEnded => ended);
-    }
+    }, [comicsList]);
+
+    const onLoadMore = () => {
+        dispatch(changeComicsOffset());
+    };
 
     function renderItems (comicsList: comic[]) {
         const items = comicsList.map(item => {
@@ -58,18 +50,18 @@ const ComicsList = () => {
 
     const items = renderItems(comicsList);
     const errorMessage = isError ? <ErrorMessage/> : null;
-    const spinner = isLoading && !isFetching ? <Spinner/> : null;
+    const spinner = isFetching ? <Spinner/> : null;
 
     return (
         <div className="comics__list">
                 {errorMessage}
-                {spinner}
                 {items}
+                {spinner}
             <button
                 className="button button__main button__long"
-                disabled={newComicsLoading}
+                disabled={isFetching}
                 style={{'display': comicsEnded ? 'none' : 'block'}}
-                onClick={() => onRequest(offset)}>
+                onClick={() => onLoadMore()}>
                 <div className="inner">load more</div>
             </button>
         </div>

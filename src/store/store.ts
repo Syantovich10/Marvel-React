@@ -1,13 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import ui from "../ui/uiSlice"
-import heroesApi from "../api/heroesApi";
+import baseApi from "../api/baseApi";
 
 const store = configureStore({
     reducer: {
         ui,
-        [heroesApi.reducerPath]: heroesApi.reducer
+        [baseApi.reducerPath]: baseApi.reducer
     },
-    middleware: getDefaultMiddleware => getDefaultMiddleware().concat(heroesApi.middleware),
+    middleware: getDefaultMiddleware => getDefaultMiddleware().concat(baseApi.middleware),
     devTools: process.env.NODE_ENV !== 'production'
 });
 

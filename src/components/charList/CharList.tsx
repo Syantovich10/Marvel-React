@@ -2,56 +2,46 @@ import {useState, useEffect} from 'react';
 import './charList.scss';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import useMarvelService from "../../services/MarvelService";
 
-import {useDispatch} from "react-redux";
-import {changeSelectChar} from "../../ui/uiSlice"
+import {useGetAllCharactersQuery} from "../../api/characterApi";
+import {useDispatch, useSelector} from "react-redux";
+import {changeSelectChar, changeCharsOffset} from "../../ui/uiSlice"
 
 import type {character} from "../../types/types";
-import {useLazyGetAllCharactersQuery, useGetAllCharactersQuery} from "../../api/heroesApi";
-
-
+import type {RootState} from "../../store/store";
 
 
 const CharList = () => {
-    const [charList, setCharList] = useState<character[]>([]);
-    const [offset, setOffset] = useState<number>(0);
     const [charEnded, setCharEnded] = useState<boolean>(false);
+    const charsOffset = useSelector((state: RootState) => state.ui.charsOffset)
     const dispatch = useDispatch();
 
-    const [trigger, {isLoading, isFetching, isError}] = useLazyGetAllCharactersQuery();
-    // const {data: chars, isLoading, isFetch} = useGetAllCharactersQuery(offset);
+    const {data: chars=[], isLoading, isFetching, isError} = useGetAllCharactersQuery(charsOffset);
 
     useEffect(() => {
-        onRequest(offset);
-    }, [])
-
-    const onRequest = (offset: number) => {
-        trigger(offset).unwrap().then(data => onCharListLoaded(data));
-    }
-
-    const onCharListLoaded = (newCharList: character[]) => {
-        let ended = false;
-        if(newCharList.length < 9) {
-            ended = true;
+        if (chars.length > 0 && chars.length % 9 !== 0) {
+            setCharEnded(true);
         }
-        setCharList(charList => [...charList, ...newCharList]);
-        setOffset(offset => offset + 9);
-        setCharEnded(charEnded => ended);
-    }
+    }, [chars]);
 
-
-
+    const onLoadMore = () => {
+        dispatch(changeCharsOffset());
+    };
 
     const Content = (charList: character[])=> {
-
-
         const items = charList.map((item) => {
             return (
-                <li className="char__item" key={item.id}
-                    onClick={() => dispatch(changeSelectChar(item.id))}>
-                    <img src={item.thumbnail} alt={item.name}/>
-                    <div className="char__name">{item.name}</div>
+                <li className="char__item" key={item.id}>
+                    <button
+                        type="button"
+                        className="char__item-button"
+                        onClick={() => dispatch(changeSelectChar(item.id))}
+                    >
+                        <img src=
+                                 {item.thumbnail}
+                             alt={item.name} />
+                        <span className="char__name">{item.name}</span>
+                    </button>
                 </li>
             )
         })
@@ -60,29 +50,24 @@ const CharList = () => {
                 {items}
             </>
         )
-    }
+    };
 
-
-    const items = Content(charList);
+    const items = Content(chars);
     const errorMessage = isError ? <ErrorMessage/> : null;
-    const spinner = isLoading && !isFetching ? <Spinner/> : null;
-
-
-
+    const spinner = isFetching ? <Spinner/> : null;
 
         return (
-
             <div className="char__list">
                 <ul className="char__grid">
                     {errorMessage}
-                    {spinner}
                     {items}
+                    {spinner}
                 </ul>
                 <button
                     className="button button__main button__long"
                     disabled={isFetching}
-                    style={{'display':charEnded ? 'none' : 'block'}}
-                onClick={()=>onRequest(offset)}>
+                    style={{'display':charEnded || isLoading || isFetching ? 'none' : 'block'}}
+                onClick={()=>onLoadMore()}>
                     <div className="inner">load more</div>
                 </button>
             </div>
