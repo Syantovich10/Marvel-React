@@ -38,7 +38,5 @@ export const characterApi = baseApi.injectEndpoints({
 
 export const {
     useGetAllCharactersQuery,
-    useLazyGetAllCharactersQuery,
-    useGetCharacterQuery,
     useLazyGetCharacterQuery,
 } = characterApi;

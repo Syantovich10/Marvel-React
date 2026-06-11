@@ -41,6 +41,5 @@ export const comicsApi = baseApi.injectEndpoints({
 
 export const {
     useGetAllComicsQuery,
-    useLazyGetAllComicsQuery,
     useGetComicQuery,
 } = comicsApi;

@@ -47,7 +47,9 @@ const CharList = () => {
         })
         return (
             <>
-                {items}
+                <ul className="char__grid">
+                    {items}
+                </ul>
             </>
         )
     };
@@ -58,11 +60,9 @@ const CharList = () => {
 
         return (
             <div className="char__list">
-                <ul className="char__grid">
                     {errorMessage}
                     {items}
                     {spinner}
-                </ul>
                 <button
                     className="button button__main button__long"
                     disabled={isFetching}

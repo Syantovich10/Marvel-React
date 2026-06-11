@@ -1,5 +1,5 @@
 import './charInfo.scss'
-import {useEffect, useState}  from "react";
+import {useEffect}  from "react";
 import {NavLink} from 'react-router-dom';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -53,7 +53,7 @@ type ViewProps = {
 }
 
 const View = ({char, comicCache} : ViewProps) => {
-    const { name,description,thumbnail, homepage,wiki,comics} = char;
+    const { name,description,thumbnail,homepage,wiki,comics} = char;
 
     const matchComics = (comicName : string, result: comic[]) => {
         // Я вынес result для того чтобы для каждого мэтча не делать запрос это писал Глеб
@@ -88,7 +88,7 @@ const View = ({char, comicCache} : ViewProps) => {
                     return (
                     <li key = {i} className="char__comics-item">
                 {id ? (
-                    <NavLink to={`/comics/${id}`}>{comic}</NavLink>
+                    <NavLink to={`/comics/${id}`} state={{from: 'characters'}}>{comic}</NavLink>
                 ) : (
                     <span>{comic}</span>
                 )}

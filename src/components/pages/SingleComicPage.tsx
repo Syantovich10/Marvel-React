@@ -1,4 +1,4 @@
-import {useParams,useNavigate, NavLink} from "react-router-dom";
+import { useParams, useNavigate, NavLink } from "react-router-dom";
 
 import { useEffect } from "react";
 import Spinner from '../spinner/Spinner';

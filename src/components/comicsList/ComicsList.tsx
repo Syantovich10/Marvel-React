@@ -1,6 +1,6 @@
 import './comicsList.scss';
-import {useState, useEffect} from "react";
-import {Link} from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";
 
@@ -8,8 +8,8 @@ import { changeComicsOffset } from "../../ui/uiSlice";
 import { useGetAllComicsQuery } from "../../api/comicsApi";
 import { useSelector, useDispatch } from "react-redux";
 
-import type {comic} from "../../types/types";
-import type {RootState} from "../../store/store";
+import type { comic } from "../../types/types";
+import type { RootState } from "../../store/store";
 
 
 const ComicsList = () => {
