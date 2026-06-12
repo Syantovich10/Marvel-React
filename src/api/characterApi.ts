@@ -1,5 +1,6 @@
 import {baseApi} from './baseApi';
 import type {character} from "../types/types";
+import {_apiKey} from "./baseApi";
 
 const _transformCharacter = (char: any): character => {
     const data = char.data ? char.data.results[0] : char;
@@ -14,7 +15,7 @@ const _transformCharacter = (char: any): character => {
     }
 }
 
-const _apiKey = "d4eecb0c66dedbfae4eab45d312fc1df"
+
 
 export const characterApi = baseApi.injectEndpoints({
     endpoints: builder => ({

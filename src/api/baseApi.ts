@@ -9,4 +9,6 @@ export const baseApi = createApi({
     endpoints: builder => ({})
 })
 
+export const _apiKey = import.meta.env.VITE_API_KEY;
+
 export default baseApi;

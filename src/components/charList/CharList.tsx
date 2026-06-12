@@ -54,6 +54,7 @@ const CharList = () => {
         )
     };
 
+
     const items = Content(chars);
     const errorMessage = isError ? <ErrorMessage/> : null;
     const spinner = isFetching ? <Spinner/> : null;
@@ -73,8 +74,6 @@ const CharList = () => {
             </div>
         );
 }
-
-
 
 
 export default CharList;

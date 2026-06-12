@@ -1,7 +1,7 @@
 import {baseApi} from "./baseApi"
 import type {comic} from "../types/types";
+import {_apiKey} from "./baseApi";
 
-const _apiKey = "d4eecb0c66dedbfae4eab45d312fc1df"
 
 const _transformComics =  (comic: any): comic => {
     const data = comic.data ? comic.data.results[0] : comic;
