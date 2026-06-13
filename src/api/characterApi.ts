@@ -1,6 +1,6 @@
 import {baseApi} from './baseApi';
 import type {character} from "../types/types";
-import {_apiKey} from "./baseApi";
+import {_apiKey as apikey} from "./baseApi";
 
 const _transformCharacter = (char: any): character => {
     const data = char.data ? char.data.results[0] : char;
@@ -20,7 +20,14 @@ const _transformCharacter = (char: any): character => {
 export const characterApi = baseApi.injectEndpoints({
     endpoints: builder => ({
         getAllCharacters: builder.query<character[], number | string | undefined>({
-            query: (offset = 0) => `characters?limit=9&offset=${offset}&apikey=${_apiKey}`,
+            query: (offset = 0) => ({
+                url: "characters",
+                params: {
+                    limit: 9,
+                    offset,
+                    apikey
+                }
+            }),
             transformResponse: (response: any) => response.data.results.map(_transformCharacter),
             serializeQueryArgs: ({ endpointName }) => endpointName,
             merge: (currentCacheData, responseData) => {
@@ -31,7 +38,7 @@ export const characterApi = baseApi.injectEndpoints({
             },
         }),
         getCharacter: builder.query<character, number | string>({
-            query: (id: number | string) => `characters/${id}?apikey=${_apiKey}`,
+            query: (id: number | string) => `characters/${id}?apikey=${apikey}`,
             transformResponse: (response: any) => _transformCharacter(response)
         }),
     })
@@ -40,4 +47,5 @@ export const characterApi = baseApi.injectEndpoints({
 export const {
     useGetAllCharactersQuery,
     useLazyGetCharacterQuery,
+    useGetCharacterQuery,
 } = characterApi;

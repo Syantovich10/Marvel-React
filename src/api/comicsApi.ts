@@ -1,6 +1,6 @@
 import {baseApi} from "./baseApi"
 import type {comic} from "../types/types";
-import {_apiKey} from "./baseApi";
+import {_apiKey as apikey} from "./baseApi";
 
 
 const _transformComics =  (comic: any): comic => {
@@ -19,7 +19,14 @@ const _transformComics =  (comic: any): comic => {
 export const comicsApi = baseApi.injectEndpoints({
     endpoints: builder => ({
         getAllComics: builder.query<comic[], number | string | undefined>({
-            query: (offset = 0) => `comics?limit=9&offset=${offset}&apikey=${_apiKey}`,
+            query: (offset = 0) => ({
+                url: "comics",
+                params: {
+                    limit: 9,
+                    offset,
+                    apikey
+                }
+            }),
             transformResponse: (response: any) => response.data.results.map(_transformComics),
             serializeQueryArgs: ({ endpointName }) => endpointName,
             merge: (currentCacheData, responseData) => {
@@ -33,7 +40,10 @@ export const comicsApi = baseApi.injectEndpoints({
             },
         }),
         getComic: builder.query<comic, number | string>({
-            query: (id: number | string) => `comics/${id}?apikey=${_apiKey}`,
+            query: (id: number | string) => ({
+                url: "comics/${id}",
+                params: {apikey}
+            }),
             transformResponse: (response: any) => _transformComics(response)
         })
     })

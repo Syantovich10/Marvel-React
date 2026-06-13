@@ -6,7 +6,7 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 import Skeleton from '../skeleton/Skeleton';
 
 import { useSelector } from "react-redux";
-import { useLazyGetCharacterQuery } from "../../api/characterApi";
+import { useGetCharacterQuery } from "../../api/characterApi";
 import { useGetAllComicsQuery } from "../../api/comicsApi";
 
 import type {character, comic} from "../../types/types";
@@ -15,22 +15,14 @@ import type {RootState} from "../../store/store";
 
 const CharInfo = () => {
     const selectedCharacter = useSelector((state: RootState) => state.ui.selectedCharacter)
-    const [trigger, {data: charItem, isLoading, isFetching, isError}] = useLazyGetCharacterQuery();
+    const {data: charItem, isLoading, isFetching, isError} = useGetCharacterQuery(selectedCharacter,{
+        skip: !selectedCharacter
+    });
     const {data: comics = []} = useGetAllComicsQuery(0);
 
-    useEffect(() => {
-        updateChar();
-    }, [selectedCharacter]);
 
 
-    const updateChar = () => {
-        if(!selectedCharacter){
-            return;
-        }
-            trigger(selectedCharacter, true)
-    }
-
-    const skeleton = !charItem && !isLoading && !isFetching && !isError ? <Skeleton/> : null;
+    const skeleton = !selectedCharacter ? <Skeleton/> : null;
     const errorMessage = isError ? <ErrorMessage/> : null;
     const spinner = (isLoading || isFetching) ? <Spinner/> : null;
     const content = charItem && !isLoading && !isFetching && !isError
